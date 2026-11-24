@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UNOVA - Sri Lanka 3D Virtual Campus</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Three.js & OrbitControls CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+  <!-- 3D WebGL Canvas -->
+  <canvas id="webgl-canvas"></canvas>
+
+  <!-- UI Overlay Container -->
+  <div id="ui-container">
+    <!-- Navigation Bar -->
+    <header class="navbar">
+      <div class="logo">UNOVA <span>3D</span></div>
+      <nav class="nav-links">
+        <button class="nav-btn active" onclick="switchView('home')">Home</button>
+        <button class="nav-btn" onclick="switchView('campus')">Virtual Campus</button>
+        <button class="nav-btn" onclick="switchView('avatar')">Avatar Studio</button>
+        <button class="nav-btn" onclick="switchView('meeting')">3D Meeting Room</button>
+        <button class="nav-btn" onclick="switchView('research')">Research Hub</button>
+      </nav>
+      <div class="user-badge" id="current-user-badge">
+        <span class="user-dot"></span> <span id="nav-user-name">Kavindu Perera (UoM)</span>
+      </div>
+    </header>
+
+    <!-- HOMEPAGE HERO OVERLAY -->
+    <section id="view-home" class="overlay-view active">
+      <div class="hero-content">
+        <div class="glow-tag">Sri Lanka's Inter-University 3D Virtual Campus</div>
+        <h1>Step Into the Future of <br><span class="gradient-text">Academic Collaboration</span></h1>
+        <p>Connect students across Moratuwa, Colombo, Peradeniya, Sri Jayewardenepura, Jaffna, and beyond. Meet, present, discuss ideas, and conduct groundbreaking research together in a shared 3D universe.</p>
+        <div class="hero-buttons">
+          <button class="btn btn-primary" onclick="switchView('campus')">Enter Virtual Campus</button>
+          <button class="btn btn-secondary" onclick="switchView('meeting')">Explore Rooms</button>
+          <button class="btn btn-accent" onclick="switchView('meeting')">Join Discussion</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIRTUAL CAMPUS OVERLAY & NAVIGATION -->
+    <section id="view-campus" class="overlay-view">
+      <div class="hud-panel left-hud">
+        <h3>Campus Locations</h3>
+        <button class="location-btn" onclick="teleportCamera('plaza')">🏛️ Central Quad & Plaza</button>
+        <button class="location-btn" onclick="teleportCamera('tech')">⚡ Tech & Innovation Hub</button>
+        <button class="location-btn" onclick="teleportCamera('library')">📚 Central Research Library</button>
+        <button class="location-btn" onclick="teleportCamera('meeting')">🛰️ 3D Dome Meeting Center</button>
+      </div>
+      <div class="hud-panel right-hud">
+        <h3>Online Students</h3>
+        <ul id="active-students-list">
+          <li><span class="status online"></span> Dilani S. — Moratuwa (UoM)</li>
+          <li><span class="status online"></span> Nimesh K. — Colombo (UoC)</li>
+          <li><span class="status online"></span> Thilini P. — Peradeniya (UoP)</li>
+          <li><span class="status online"></span> Sahan R. — Sri Jayewardenepura</li>
+          <li><span class="status online"></span> Ajanthan T. — Jaffna (UOJ)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- AVATAR CUSTOMIZER OVERLAY -->
+    <section id="view-avatar" class="overlay-view">
+      <div class="glass-card customizer-card">
+        <h2>3D Avatar Studio</h2>
+        <p class="subtitle">Customize your 3D avatar representation across the campus</p>
+        <div class="form-group">
+          <label for="avatar-name">Student Name:</label>
+          <input type="text" id="avatar-name" value="Kavindu Perera" oninput="updateAvatarProfile()" />
+        </div>
+        <div class="form-group">
+          <label for="avatar-uni">University:</label>
+          <select id="avatar-uni" onchange="updateAvatarProfile()">
+            <option value="UoM">University of Moratuwa (UoM)</option>
+            <option value="UoC">University of Colombo (UoC)</option>
+            <option value="UoP">University of Peradeniya (UoP)</option>
+            <option value="USJ">Univ. of Sri Jayewardenepura (USJ)</option>
+            <option value="UOJ">University of Jaffna (UOJ)</option>
+            <option value="SLIIT/NSBM">SLIIT / NSBM Campus</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="avatar-color">Outfit Color:</label>
+          <input type="color" id="avatar-color" value="#00f3ff" onchange="updateAvatarAppearance()" />
+        </div>
+        <div class="form-group">
+          <label for="hair-color">Hairstyle / Accent Color:</label>
+          <input type="color" id="hair-color" value="#9d4edd" onchange="updateAvatarAppearance()" />
+        </div>
+        <div class="form-group">
+          <label>Avatar Animation State:</label>
+          <button class="btn btn-sm btn-secondary" style="width: 100%;" onclick="toggleAvatarAnim()">Toggle Walk / Idle State</button>
+        </div>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="switchView('campus')">Save & Enter Campus</button>
+      </div>
+    </section>
+
+    <!-- 3D MEETING ROOM OVERLAY -->
+    <section id="view-meeting" class="overlay-view">
+      <div class="meeting-layout">
+        <div class="glass-card whiteboard-panel">
+          <div class="panel-header">
+            <h3>Interactive 3D Whiteboard & Screen</h3>
+            <span class="badge live">Live Session</span>
+          </div>
+          <textarea id="whiteboard-notes" placeholder="Collaborative meeting notes, project code snippets, mathematical proofs, or research ideas..."></textarea>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-primary" onclick="saveNotes()">Save Whiteboard Notes</button>
+            <button class="btn btn-sm btn-secondary" onclick="triggerPresentation()">Screen Share Presentation</button>
+          </div>
+        </div>
+        <div class="glass-card chat-panel">
+          <h3>Group Discussion & Chat</h3>
+          <div id="chat-box" class="chat-messages">
+            <div class="msg"><strong>Dilani (UoM):</strong> Welcome everyone to the UNOVA joint AI project session!</div>
+            <div class="msg"><strong>Nimesh (UoC):</strong> I've uploaded the dataset outline to the whiteboard screen.</div>
+            <div class="msg"><strong>Thilini (UoP):</strong> Peradeniya team is ready to present the robotics architecture.</div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" id="chat-input" placeholder="Type a message or project idea..." onkeypress="if(event.key==='Enter') sendMessage()" />
+            <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESEARCH HUB OVERLAY -->
+    <section id="view-research" class="overlay-view">
+      <div class="glass-card research-container">
+        <h2>Inter-University Research Hub</h2>
+        <p>Share thesis topics, propose research ideas, and invite student collaborators across Sri Lanka.</p>
+        <div class="research-grid">
+          <div class="research-card">
+            <span class="badge">AI & Robotics</span>
+            <h3>Autonomous Marine Cleaning Drones for Coastal Sri Lanka</h3>
+            <p><strong>Collaborators:</strong> Moratuwa (UoM) & Peradeniya (UoP)</p>
+            <p>Seeking 2 AI developers and IoT hardware engineers for field testing in Jaffna.</p>
+            <button class="btn btn-sm btn-primary" onclick="alert('Join Request Sent to Lead Researcher!')">Join Research Project</button>
+          </div>
+          <div class="research-card">
+            <span class="badge">Renewable Energy</span>
+            <h3>Smart Solar Grid Optimization for Dry Zone Communities</h3>
+            <p><strong>Collaborators:</strong> Ruhuna (UoR) & Colombo (UoC)</p>
+            <p>Analyzing predictive machine learning models for battery storage efficiency.</p>
+            <button class="btn btn-sm btn-primary" onclick="alert('Join Request Sent to Lead Researcher!')">Join Research Project</button>
+          </div>
+          <div class="research-card">
+            <span class="badge">Biomedical Engineering</span>
+            <h3>Low-Cost AI Prosthetics & Haptic Sensor Arrays</h3>
+            <p><strong>Collaborators:</strong> Jayewardenepura (USJ) & Moratuwa</p>
+            <p>Developing 3D-printed bionic limbs integrated with muscular neural sensors.</p>
+            <button class="btn btn-sm btn-primary" onclick="alert('Join Request Sent to Lead Researcher!')">Join Research Project</button>
+          </div>
+        </div>
+        <button class="btn btn-accent" style="margin-top:20px;" onclick="submitResearchConcept()">+ Submit New Research Concept</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
